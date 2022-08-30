@@ -1,0 +1,6 @@
+{
+  "scriptId": "YOUR SCRIPT ID HERE",
+  // Needed if you deploy to container-bound scripts
+  // "parentId": ["11Vh7jwLWLBQkpY22DVQYluzbLzjUVAVchZyO7mCLIFs"],
+  "rootDir": "./src"
+}
