@@ -1,9 +1,10 @@
 function run() {
   const events = fetchEvents();
 
+  const config = getConfig();
   const durationInHoursByColor = aggregateDurationsByColor(events);
 
-  writeToSpreadSheet(durationInHoursByColor);
+  writeToSpreadSheet(durationInHoursByColor, config);
 }
 
 type EventColor = GoogleAppsScript.Calendar.EventColor;
@@ -38,7 +39,10 @@ function aggregateDurationsByColor(
   return durationInHoursByColor;
 }
 
-function writeToSpreadSheet(durationInHoursByColor: Map<string, number>) {
+function writeToSpreadSheet(
+  durationInHoursByColor: Map<ColorId, number>,
+  config: Config
+) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = ss.getSheetByName("data");
   if (!sheet) {
@@ -52,21 +56,18 @@ function writeToSpreadSheet(durationInHoursByColor: Map<string, number>) {
     1,
     range.getNumColumns()
   );
-  const headers = sheet.getRange(1, 1, 1, range.getNumColumns()).getValues()[0];
+  const headers: Category[] = sheet
+    .getRange(1, 1, 1, range.getNumColumns())
+    .getValues()[0];
   const values = headers.map((header) => {
-    return durationInHoursByColor.get(eventTypes[header]);
+    const colorId = config.get(header) ?? "";
+    return durationInHoursByColor.get(colorId);
   });
   // @ts-ignore
   values[0] = new Date();
   console.log("values", values);
   row.setValues([values]);
 }
-
-const eventTypes = {
-  その他: "default",
-  CRE: "7",
-  定例: "8",
-};
 
 type CalendarEvent = {
   title: string;
