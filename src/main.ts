@@ -83,11 +83,15 @@ function createConfigSheet() {
   const headerCells = sheet.getRange(1, 1, 1, 2);
   headerCells.setValues([["Color", "Category"]]);
 
-  const dataCells = sheet.getRange(2, 1, EVENT_COLORS.length, 2);
-  dataCells.setBackgrounds(
-    EVENT_COLORS.map((eventColor) => [eventColor, null])
-  );
-  dataCells.setValues(EVENT_COLORS.map((_, idx) => [idx + 1, null]));
+  const dataCells = sheet.getRange(2, 1, EVENT_COLORS.length + 1, 2);
+  dataCells.setBackgrounds([
+    ...EVENT_COLORS.map((eventColor) => [eventColor, null]),
+    ["white", null],
+  ]);
+  dataCells.setValues([
+    ...EVENT_COLORS.map((_, idx) => [idx + 1, null]),
+    ["default", null],
+  ]);
 }
 
 // ref. https://sakidesign.com/gapi-calendar/
