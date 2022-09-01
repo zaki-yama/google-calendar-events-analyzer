@@ -12,10 +12,16 @@ type EventColor = GoogleAppsScript.Calendar.EventColor;
 function fetchEvents() {
   const today = new Date();
   const events = CalendarApp.getEventsForDay(today);
-  // TODO: filter events so that:
+
+  // filter events so that:
   // - include only accepted events
-  // - ignore allday events
-  return events;
+  // - exclude allday events
+  return events.filter(
+    (event) =>
+      !event.isAllDayEvent() &&
+      (event.getMyStatus() === CalendarApp.GuestStatus.OWNER ||
+        event.getMyStatus() === CalendarApp.GuestStatus.YES)
+  );
 }
 
 function aggregateDurationsByColor(
