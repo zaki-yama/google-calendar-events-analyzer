@@ -108,3 +108,25 @@ const EVENT_COLORS = [
   "#0B8043", // バジル Basil
   "#D50000", // トマト Tomato
 ];
+
+type Category = string;
+type ColorId = string;
+type Config = Map<Category, ColorId>;
+
+function getConfig(): Config {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName("config");
+
+  const cells = sheet?.getRange(
+    2,
+    1,
+    sheet.getLastRow(),
+    sheet.getLastColumn()
+  );
+  const res = new Map<string, string>();
+  cells?.getValues().forEach((row) => {
+    row[1] && res.set(row[1], row[0].toString());
+  });
+  console.log(res);
+  return res;
+}
