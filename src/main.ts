@@ -1,8 +1,9 @@
 function run() {
   const events = fetchEvents();
+
   const durationInHoursByColor = aggregateDurationsByColor(events);
 
-  writeToSpeadSheet(durationInHoursByColor);
+  writeToSpreadSheet(durationInHoursByColor);
 }
 
 type EventColor = GoogleAppsScript.Calendar.EventColor;
@@ -37,7 +38,7 @@ function aggregateDurationsByColor(
   return durationInHoursByColor;
 }
 
-function writeToSpeadSheet(durationInHoursByColor: Map<string, number>) {
+function writeToSpreadSheet(durationInHoursByColor: Map<string, number>) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = ss.getSheetByName("data");
   if (!sheet) {
