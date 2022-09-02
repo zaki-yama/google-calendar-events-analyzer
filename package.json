@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "push": "clasp push"
   },
   "repository": {
@@ -20,6 +20,10 @@
   "homepage": "https://github.com/zaki-yama/google-calendar-events-analyzer#readme",
   "devDependencies": {
     "@google/clasp": "^2.4.1",
-    "@types/google-apps-script": "^1.0.45"
+    "@swc/core": "^1.2.246",
+    "@swc/jest": "^0.2.22",
+    "@types/google-apps-script": "^1.0.45",
+    "@types/jest": "^29.0.0",
+    "jest": "^29.0.1"
   }
 }
