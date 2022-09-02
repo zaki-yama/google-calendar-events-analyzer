@@ -5,11 +5,14 @@ function run() {
   const config = getConfig();
   // TODO: Instead of using colorId as a key of Map, use category.
   // const durationByCategory = ...
-  const durationInHoursByColor = aggregateDurationsByColor(events);
+  const durationInHoursByCategory = aggregateDurationsByCategory(
+    events,
+    config
+  );
 
-  writeToSpreadSheet(durationInHoursByColor, config);
+  writeToSpreadSheet(durationInHoursByCategory);
 
-  postToSlack(events, durationInHoursByColor);
+  postToSlack(events, durationInHoursByCategory);
 }
 
 type EventColor = GoogleAppsScript.Calendar.EventColor;
@@ -47,28 +50,30 @@ function convertGoogleEvents(
   }));
 }
 
-function aggregateDurationsByColor(events: Event[]): Map<ColorId, number> {
-  const durationInHoursByColor = new Map<ColorId, number>();
+function aggregateDurationsByCategory(
+  events: Event[],
+  config: Config
+): Map<Category, number> {
+  const durationInHoursByCategory = new Map<Category, number>();
   events.forEach((event) => {
-    const color = event.color;
-    console.log(`----${event.title} (${event.color}`);
+    const colorId = event.color;
+    const category = config.get(colorId);
+    if (!category) {
+      console.log(`[skip] ${event.title} (color: ${event.color}`);
+      return;
+    }
     const durationInHours =
       (event.endTime.getTime() - event.startTime.getTime()) / (60 * 60 * 1000);
-    console.log("duration", durationInHours);
+    console.log(`[${category}] ${event.title}: ${durationInHours}`);
     const totalDurationInHours =
-      durationInHours + (durationInHoursByColor.get(color) || 0);
+      durationInHours + (durationInHoursByCategory.get(category) || 0);
     console.log("totalDuration", totalDurationInHours);
-    durationInHoursByColor.set(color, totalDurationInHours);
+    durationInHoursByCategory.set(category, totalDurationInHours);
   });
-  console.log(durationInHoursByColor.values);
-
-  return durationInHoursByColor;
+  return durationInHoursByCategory;
 }
 
-function writeToSpreadSheet(
-  durationInHoursByColor: Map<ColorId, number>,
-  config: Config
-) {
+function writeToSpreadSheet(durationInHoursByCategory: Map<Category, number>) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = ss.getSheetByName("data");
   if (!sheet) {
@@ -82,13 +87,12 @@ function writeToSpreadSheet(
     1,
     range.getNumColumns()
   );
-  const headers: Category[] = sheet
+  const categories: Category[] = sheet
     .getRange(1, 1, 1, range.getNumColumns())
     .getValues()[0];
-  const values = headers.map((header) => {
-    const colorId = config.get(header) ?? "";
-    return durationInHoursByColor.get(colorId);
-  });
+  const values = categories.map((category) =>
+    durationInHoursByCategory.get(category)
+  );
   // @ts-ignore
   values[0] = new Date();
   console.log("values", values);
@@ -138,7 +142,7 @@ const EVENT_COLORS = [
 
 type Category = string;
 type ColorId = string;
-type Config = Map<Category, ColorId>;
+type Config = Map<ColorId, Category>;
 
 function getConfig(): Config {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -152,7 +156,7 @@ function getConfig(): Config {
   );
   const res = new Map<string, string>();
   cells?.getValues().forEach((row) => {
-    row[1] && res.set(row[1], row[0].toString());
+    row[1] && res.set(row[0].toString(), row[1]);
   });
   console.log(res);
   return res;
@@ -162,7 +166,7 @@ const SLACK_WEBHOOK_URL = "https://hooks.slack.com/services/xxxx";
 
 function postToSlack(
   events: Event[],
-  durationInHoursByColor: Map<string, number>
+  durationInHoursByCategory: Map<Category, number>
 ) {
   const eventsText = events
     .map((event) => {
