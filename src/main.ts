@@ -1,15 +1,20 @@
 function run() {
-  const events = fetchEvents();
+  const googleEvents = fetchGoogleEvents();
+  const events = convertGoogleEvents(googleEvents);
 
   const config = getConfig();
+  // TODO: Instead of using colorId as a key of Map, use category.
+  // const durationByCategory = ...
   const durationInHoursByColor = aggregateDurationsByColor(events);
 
   writeToSpreadSheet(durationInHoursByColor, config);
+
+  postToSlack(events, durationInHoursByColor);
 }
 
 type EventColor = GoogleAppsScript.Calendar.EventColor;
 
-function fetchEvents() {
+function fetchGoogleEvents(): GoogleAppsScript.Calendar.CalendarEvent[] {
   const today = new Date();
   const events = CalendarApp.getEventsForDay(today);
 
@@ -24,16 +29,31 @@ function fetchEvents() {
   );
 }
 
-function aggregateDurationsByColor(
-  events: GoogleAppsScript.Calendar.CalendarEvent[]
-) {
-  const durationInHoursByColor = new Map<string, number>();
+type Event = {
+  title: string;
+  startTime: GoogleAppsScript.Base.Date;
+  endTime: GoogleAppsScript.Base.Date;
+  color: ColorId;
+};
+
+function convertGoogleEvents(
+  googleEvents: GoogleAppsScript.Calendar.CalendarEvent[]
+): Event[] {
+  return googleEvents.map((googleEvent) => ({
+    title: googleEvent.getTitle(),
+    color: googleEvent.getColor() || "default",
+    startTime: googleEvent.getStartTime(),
+    endTime: googleEvent.getEndTime(),
+  }));
+}
+
+function aggregateDurationsByColor(events: Event[]): Map<ColorId, number> {
+  const durationInHoursByColor = new Map<ColorId, number>();
   events.forEach((event) => {
-    const color = event.getColor() || "default";
-    console.log(`----${event.getTitle()} (${event.getColor()}`);
+    const color = event.color;
+    console.log(`----${event.title} (${event.color}`);
     const durationInHours =
-      (event.getEndTime().getTime() - event.getStartTime().getTime()) /
-      (60 * 60 * 1000);
+      (event.endTime.getTime() - event.startTime.getTime()) / (60 * 60 * 1000);
     console.log("duration", durationInHours);
     const totalDurationInHours =
       durationInHours + (durationInHoursByColor.get(color) || 0);
@@ -138,18 +158,17 @@ function getConfig(): Config {
   return res;
 }
 
-const SLACK_WEBHOOK_URL =
-  "https://hooks.slack.com/services/xxxx";
+const SLACK_WEBHOOK_URL = "https://hooks.slack.com/services/xxxx";
 
 function postToSlack(
-  events: GoogleAppsScript.Calendar.CalendarEvent[],
+  events: Event[],
   durationInHoursByColor: Map<string, number>
 ) {
   const eventsText = events
     .map((event) => {
-      return `${toHHmmString(event.getStartTime())}〜${toHHmmString(
-        event.getEndTime()
-      )}: ${event.getTitle()}`;
+      return `${toHHmmString(event.startTime)}〜${toHHmmString(
+        event.endTime
+      )}: ${event.title}`;
     })
     .join("\n");
   const message = {
