@@ -137,3 +137,50 @@ function getConfig(): Config {
   console.log(res);
   return res;
 }
+
+const SLACK_WEBHOOK_URL =
+  "https://hooks.slack.com/services/xxxx";
+
+function postToSlack(
+  events: GoogleAppsScript.Calendar.CalendarEvent[],
+  durationInHoursByColor: Map<string, number>
+) {
+  const eventsText = events
+    .map((event) => {
+      return `${toHHmmString(event.getStartTime())}〜${toHHmmString(
+        event.getEndTime()
+      )}: ${event.getTitle()}`;
+    })
+    .join("\n");
+  const message = {
+    blocks: [
+      {
+        type: "header",
+        text: {
+          type: "plain_text",
+          text: "今日の作業",
+          emoji: true,
+        },
+      },
+      {
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: `\`\`\`${eventsText}\`\`\``,
+        },
+      },
+    ],
+  };
+  const options = {
+    method: "post",
+    contentType: "application/json",
+    payload: JSON.stringify(message),
+  } as const;
+  UrlFetchApp.fetch(SLACK_WEBHOOK_URL, options);
+}
+
+function toHHmmString(date) {
+  const hh = `${date.getHours()}`.padStart(2, "0");
+  const mm = `${date.getMinutes()}`.padStart(2, "0");
+  return `${hh}:${mm}`;
+}
