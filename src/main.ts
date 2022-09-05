@@ -3,8 +3,6 @@ function run() {
   const events = convertGoogleEvents(googleEvents);
 
   const config = getConfig();
-  // TODO: Instead of using colorId as a key of Map, use category.
-  // const durationByCategory = ...
   const durationInHoursByCategory = aggregateDurationsByCategory(
     events,
     config
