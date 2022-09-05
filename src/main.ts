@@ -1,14 +1,11 @@
 function run() {
   const googleEvents = fetchGoogleEvents();
-  const events = convertGoogleEvents(googleEvents);
 
   const config = getConfig();
-  const durationInHoursByCategory = aggregateDurationsByCategory(
-    events,
-    config
-  );
+  const events = convertGoogleEvents(googleEvents, config);
+  const durationInHoursByCategory = aggregateDurationsByCategory(events);
 
-  writeToSpreadSheet(durationInHoursByCategory);
+  writeEventsToSpreadSheet(events);
 
   postToSlack(events, durationInHoursByCategory);
 }
@@ -32,43 +29,67 @@ function fetchGoogleEvents(): GoogleAppsScript.Calendar.CalendarEvent[] {
 
 type Event = {
   title: string;
+  colorId: ColorId;
+  category: Category | undefined;
   startTime: GoogleAppsScript.Base.Date;
   endTime: GoogleAppsScript.Base.Date;
-  color: ColorId;
 };
 
 function convertGoogleEvents(
-  googleEvents: GoogleAppsScript.Calendar.CalendarEvent[]
+  googleEvents: GoogleAppsScript.Calendar.CalendarEvent[],
+  config: Config
 ): Event[] {
-  return googleEvents.map((googleEvent) => ({
-    title: googleEvent.getTitle(),
-    color: googleEvent.getColor() || "default",
-    startTime: googleEvent.getStartTime(),
-    endTime: googleEvent.getEndTime(),
-  }));
+  return googleEvents.map((googleEvent) => {
+    const colorId = googleEvent.getColor() || "default";
+    return {
+      title: googleEvent.getTitle(),
+      colorId: colorId,
+      category: config.get(colorId),
+      startTime: googleEvent.getStartTime(),
+      endTime: googleEvent.getEndTime(),
+    };
+  });
 }
 
-function aggregateDurationsByCategory(
-  events: Event[],
-  config: Config
-): Map<Category, number> {
+function aggregateDurationsByCategory(events: Event[]): Map<Category, number> {
   const durationInHoursByCategory = new Map<Category, number>();
   events.forEach((event) => {
-    const colorId = event.color;
-    const category = config.get(colorId);
-    if (!category) {
-      console.log(`[skip] ${event.title} (color: ${event.color}`);
+    if (!event.category) {
+      console.log(`[skip] ${event.title} (color: ${event.colorId}`);
       return;
     }
     const durationInHours =
       (event.endTime.getTime() - event.startTime.getTime()) / (60 * 60 * 1000);
-    console.log(`[${category}] ${event.title}: ${durationInHours}`);
+    console.log(`[${event.category}] ${event.title}: ${durationInHours}`);
+
     const totalDurationInHours =
-      durationInHours + (durationInHoursByCategory.get(category) || 0);
+      durationInHours + (durationInHoursByCategory.get(event.category) || 0);
     console.log("totalDuration", totalDurationInHours);
-    durationInHoursByCategory.set(category, totalDurationInHours);
+
+    durationInHoursByCategory.set(event.category, totalDurationInHours);
   });
   return durationInHoursByCategory;
+}
+
+function writeEventsToSpreadSheet(events: Event[]) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName("raw data");
+  if (!sheet) {
+    throw new Error("data sheet not found");
+  }
+
+  const lastRow = sheet.getLastRow();
+  const range = sheet.getRange(lastRow, 1, events.length, 6);
+
+  const values = events.map((event, index) => [
+    new Date(new Date(event.startTime.getTime()).setHours(0, 0, 0)),
+    event.category,
+    event.title,
+    toHHmmString(event.startTime),
+    toHHmmString(event.endTime),
+    `=E${lastRow + index}-D${lastRow + index}`,
+  ]);
+  range.setValues(values);
 }
 
 function writeToSpreadSheet(durationInHoursByCategory: Map<Category, number>) {
