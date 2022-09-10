@@ -226,3 +226,28 @@ function toHHmmString(date) {
   const mm = `${date.getMinutes()}`.padStart(2, "0");
   return `${hh}:${mm}`;
 }
+
+function updateChartRange(targetDate: Date): void {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName("summary");
+  const dateCol = sheet.getRange(1, 1, sheet.getLastRow(), 1);
+
+  const chart = sheet.getCharts()[0];
+  const targetRowIndex = dateCol
+    .getValues()
+    .findIndex(
+      (data) =>
+        targetDate.getFullYear() === data[0].getFullYear?.() &&
+        targetDate.getMonth() === data[0].getMonth?.() &&
+        targetDate.getDate() === data[0].getDate?.()
+    );
+  console.log(targetRowIndex);
+
+  sheet.updateChart(
+    chart
+      .modify()
+      // FIXME: the number of columns can be changed, so I should avoid using `A` and `F` notation
+      .addRange(sheet.getRange(`A${targetRowIndex + 1}:F${targetRowIndex + 6}`))
+      .build()
+  );
+}
