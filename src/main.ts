@@ -1,5 +1,6 @@
 function run() {
-  const googleEvents = fetchGoogleEvents();
+  const targetDate = new Date();
+  const googleEvents = fetchGoogleEvents(targetDate);
 
   const config = getConfig();
   const events = convertGoogleEvents(googleEvents, config);
@@ -7,14 +8,16 @@ function run() {
 
   writeEventsToSpreadSheet(events);
 
+  postSummaryToSlack(targetDate);
   postToSlack(events, durationInHoursByCategory);
 }
 
 type EventColor = GoogleAppsScript.Calendar.EventColor;
 
-function fetchGoogleEvents(): GoogleAppsScript.Calendar.CalendarEvent[] {
-  const today = new Date();
-  const events = CalendarApp.getEventsForDay(today);
+function fetchGoogleEvents(
+  targetDate: Date
+): GoogleAppsScript.Calendar.CalendarEvent[] {
+  const events = CalendarApp.getEventsForDay(targetDate);
 
   // filter events so that:
   // - include only accepted events
