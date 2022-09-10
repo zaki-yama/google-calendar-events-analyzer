@@ -82,7 +82,7 @@ function writeEventsToSpreadSheet(events: Event[]) {
   }
 
   const lastRow = sheet.getLastRow();
-  const range = sheet.getRange(lastRow, 1, events.length, 6);
+  const range = sheet.getRange(lastRow + 1, 1, events.length, 6);
 
   const values = events.map((event, index) => [
     new Date(new Date(event.startTime.getTime()).setHours(0, 0, 0)),
@@ -90,7 +90,7 @@ function writeEventsToSpreadSheet(events: Event[]) {
     event.title,
     toHHmmString(event.startTime),
     toHHmmString(event.endTime),
-    `=E${lastRow + index}-D${lastRow + index}`,
+    `=E${lastRow + index + 1}-D${lastRow + index + 1}`,
   ]);
   range.setValues(values);
 }
