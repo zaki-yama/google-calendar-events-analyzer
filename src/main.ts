@@ -4,8 +4,6 @@ function run() {
 
   const config = getConfig();
   const events = convertGoogleEvents(googleEvents, config);
-  const durationInHoursByCategory = aggregateDurationsByCategory(events);
-
   writeEventsToSpreadSheet(events);
 
   postSummaryToSlack(targetDate);
@@ -52,26 +50,6 @@ function convertGoogleEvents(
       endTime: googleEvent.getEndTime(),
     };
   });
-}
-
-function aggregateDurationsByCategory(events: Event[]): Map<Category, number> {
-  const durationInHoursByCategory = new Map<Category, number>();
-  events.forEach((event) => {
-    if (!event.category) {
-      console.log(`[skip] ${event.title} (color: ${event.colorId}`);
-      return;
-    }
-    const durationInHours =
-      (event.endTime.getTime() - event.startTime.getTime()) / (60 * 60 * 1000);
-    console.log(`[${event.category}] ${event.title}: ${durationInHours}`);
-
-    const totalDurationInHours =
-      durationInHours + (durationInHoursByCategory.get(event.category) || 0);
-    console.log("totalDuration", totalDurationInHours);
-
-    durationInHoursByCategory.set(event.category, totalDurationInHours);
-  });
-  return durationInHoursByCategory;
 }
 
 function writeEventsToSpreadSheet(events: Event[]) {
