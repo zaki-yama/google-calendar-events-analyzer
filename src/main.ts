@@ -294,3 +294,23 @@ function updateChartRange(targetDate: Date): void {
       .build()
   );
 }
+
+function postChartToSlack() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName("summary");
+  const chart = sheet.getCharts()[0];
+
+  const options = {
+    method: "post",
+    headers: {
+      Authorization: `Bearer ${SLACK_BOT_TOKEN}`,
+    },
+    payload: {
+      title: "Summary",
+      channels: SLACK_CHANNEL_NAME,
+      file: chart.getAs("image/png"),
+      fileType: "png",
+    },
+  } as const;
+  UrlFetchApp.fetch(SLACK_FILE_UPLOAD_URL, options);
+}
