@@ -1,4 +1,42 @@
-function run() {
+/* constants */
+const SLACK_WEBHOOK_URL = "<YOUR WEBHOOK URL>";
+
+// Needed to post the chart to slack
+const SLACK_FILE_UPLOAD_URL = "https://slack.com/api/files.upload";
+const SLACK_BOT_TOKEN = "<YOUR BOT TOKEN>";
+const SLACK_CHANNEL_NAME = "<YOUR SLACK CHANNEL NAME>";
+
+// ref. https://sakidesign.com/gapi-calendar/
+const EVENT_COLORS = [
+  "#7986CB", // ラベンダー Lavender
+  "#33B679", // セージ Sage
+  "#8E24AA", // グレープ Grape
+  "#E67C73", // フラミンゴ Flamingo
+  "#F6BF26", // バナナ Banana
+  "#F4511E", // ミカン Tangerine
+  "#039BE5", // ピーコック Peacock
+  "#616161", // グラファイト Graphite
+  "#3F51B5", // ブルーベリー Blueberry
+  "#0B8043", // バジル Basil
+  "#D50000", // トマト Tomato
+];
+
+/* types */
+type Event = {
+  title: string;
+  colorId: ColorId;
+  category: Category | undefined;
+  startTime: GoogleAppsScript.Base.Date;
+  endTime: GoogleAppsScript.Base.Date;
+};
+type Category = string;
+type ColorId = string;
+type Config = Map<ColorId, Category>;
+
+/**
+ * main function. Trigger this daily.
+ */
+function runDaily() {
   const targetDate = new Date();
   const googleEvents = fetchGoogleEvents(targetDate);
   if (googleEvents.length === 0) {
@@ -12,8 +50,6 @@ function run() {
 
   postSummaryToSlack(targetDate, events);
 }
-
-type EventColor = GoogleAppsScript.Calendar.EventColor;
 
 function fetchGoogleEvents(
   targetDate: Date
@@ -30,14 +66,6 @@ function fetchGoogleEvents(
         event.getMyStatus() === CalendarApp.GuestStatus.YES)
   );
 }
-
-type Event = {
-  title: string;
-  colorId: ColorId;
-  category: Category | undefined;
-  startTime: GoogleAppsScript.Base.Date;
-  endTime: GoogleAppsScript.Base.Date;
-};
 
 function convertGoogleEvents(
   googleEvents: GoogleAppsScript.Calendar.CalendarEvent[],
@@ -102,14 +130,6 @@ function writeToSpreadSheet(durationInHoursByCategory: Map<Category, number>) {
   row.setValues([values]);
 }
 
-type CalendarEvent = {
-  title: string;
-  startTime: number;
-  endTime: number;
-  duration: number;
-  color: string;
-};
-
 function createConfigSheet() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = ss.getSheetByName("config") || ss.insertSheet("config");
@@ -128,25 +148,6 @@ function createConfigSheet() {
   ]);
 }
 
-// ref. https://sakidesign.com/gapi-calendar/
-const EVENT_COLORS = [
-  "#7986CB", // ラベンダー Lavender
-  "#33B679", // セージ Sage
-  "#8E24AA", // グレープ Grape
-  "#E67C73", // フラミンゴ Flamingo
-  "#F6BF26", // バナナ Banana
-  "#F4511E", // ミカン Tangerine
-  "#039BE5", // ピーコック Peacock
-  "#616161", // グラファイト Graphite
-  "#3F51B5", // ブルーベリー Blueberry
-  "#0B8043", // バジル Basil
-  "#D50000", // トマト Tomato
-];
-
-type Category = string;
-type ColorId = string;
-type Config = Map<ColorId, Category>;
-
 function getConfig(): Config {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = ss.getSheetByName("config");
@@ -164,9 +165,6 @@ function getConfig(): Config {
   console.log(res);
   return res;
 }
-
-const SLACK_WEBHOOK_URL = "https://hooks.slack.com/services/xxxx";
-const SLACK_FILE_UPLOAD_URL = "https://slack.com/api/files.upload";
 
 function toHHmmString(date) {
   const hh = `${date.getHours()}`.padStart(2, "0");
