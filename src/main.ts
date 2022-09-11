@@ -230,6 +230,46 @@ function toHHmmString(date) {
   return `${hh}:${mm}`;
 }
 
+/**
+ * Post the summary (duration by category) to Slack
+ */
+function postSummaryToSlack(targetDate: Date) {
+  const summary = getSummary(targetDate);
+  const message = Object.keys(summary)
+    .flatMap((category) =>
+      summary[category] ? `${category}: ${toHHmmString(summary[category])}` : []
+    )
+    .join("\n");
+  console.log(message);
+
+  // TODO: Post to Slack
+}
+
+function getSummary(targetDate: Date) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName("summary");
+
+  const dateCol = sheet.getRange(1, 1, sheet.getLastRow(), 1);
+  const targetRowIndex = dateCol
+    .getValues()
+    .findIndex(
+      (data) =>
+        targetDate.getFullYear() === data[0].getFullYear?.() &&
+        targetDate.getMonth() === data[0].getMonth?.() &&
+        targetDate.getDate() === data[0].getDate?.()
+    );
+
+  const values = sheet.getDataRange().getValues();
+  const headers = values[1];
+  const targetValues = values[targetRowIndex];
+  const summary = Object.fromEntries(
+    // Drop first element (it's "Date" column)
+    headers.map((header, i) => [header, targetValues[i]]).slice(1)
+  );
+  console.log(summary);
+  return summary;
+}
+
 function updateChartRange(targetDate: Date): void {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = ss.getSheetByName("summary");
