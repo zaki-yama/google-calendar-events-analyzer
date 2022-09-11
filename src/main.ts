@@ -1,6 +1,10 @@
 function run() {
   const targetDate = new Date();
   const googleEvents = fetchGoogleEvents(targetDate);
+  if (googleEvents.length === 0) {
+    console.log(`Date [${targetDate}] has no events.`);
+    return;
+  }
 
   const config = getConfig();
   const events = convertGoogleEvents(googleEvents, config);
