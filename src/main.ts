@@ -6,8 +6,7 @@ function run() {
   const events = convertGoogleEvents(googleEvents, config);
   writeEventsToSpreadSheet(events);
 
-  postSummaryToSlack(targetDate);
-  postToSlack(events, durationInHoursByCategory);
+  postSummaryToSlack(targetDate, events);
 }
 
 type EventColor = GoogleAppsScript.Calendar.EventColor;
@@ -163,26 +162,42 @@ function getConfig(): Config {
 }
 
 const SLACK_WEBHOOK_URL = "https://hooks.slack.com/services/xxxx";
+const SLACK_FILE_UPLOAD_URL = "https://slack.com/api/files.upload";
 
-function postToSlack(
-  events: Event[],
-  durationInHoursByCategory: Map<Category, number>
-) {
+function toHHmmString(date) {
+  const hh = `${date.getHours()}`.padStart(2, "0");
+  const mm = `${date.getMinutes()}`.padStart(2, "0");
+  return `${hh}:${mm}`;
+}
+
+/**
+ * Post the summary (duration by category) to Slack
+ */
+function postSummaryToSlack(targetDate: Date, events: Event[]) {
+  const summary = getSummary(targetDate);
+  const summaryText = Object.keys(summary)
+    .flatMap((category) =>
+      summary[category] ? `${category}: ${toHHmmString(summary[category])}` : []
+    )
+    .join("\n");
+  console.log(summaryText);
+
   const eventsText = events
+    .filter((event) => event.category)
     .map((event) => {
       return `${toHHmmString(event.startTime)}〜${toHHmmString(
         event.endTime
-      )}: ${event.title}`;
+      )}: [${event.category}] ${event.title}`;
     })
     .join("\n");
+
   const message = {
     blocks: [
       {
-        type: "header",
+        type: "section",
         text: {
-          type: "plain_text",
-          text: "今日の作業",
-          emoji: true,
+          type: "mrkdwn",
+          text: `:muscle: *今日の作業*\n${summaryText}`,
         },
       },
       {
@@ -200,27 +215,6 @@ function postToSlack(
     payload: JSON.stringify(message),
   } as const;
   UrlFetchApp.fetch(SLACK_WEBHOOK_URL, options);
-}
-
-function toHHmmString(date) {
-  const hh = `${date.getHours()}`.padStart(2, "0");
-  const mm = `${date.getMinutes()}`.padStart(2, "0");
-  return `${hh}:${mm}`;
-}
-
-/**
- * Post the summary (duration by category) to Slack
- */
-function postSummaryToSlack(targetDate: Date) {
-  const summary = getSummary(targetDate);
-  const message = Object.keys(summary)
-    .flatMap((category) =>
-      summary[category] ? `${category}: ${toHHmmString(summary[category])}` : []
-    )
-    .join("\n");
-  console.log(message);
-
-  // TODO: Post to Slack
 }
 
 function getSummary(targetDate: Date) {
