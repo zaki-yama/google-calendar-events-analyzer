@@ -29,7 +29,7 @@ function onOpen() {
 function openSettings() {
   const template = HtmlService.createTemplateFromFile("Settings");
   template.settings = getSettings();
-  const html = template.evaluate().setWidth(400).setHeight(300);
+  const html = template.evaluate().setWidth(500).setHeight(400);
   SpreadsheetApp.getUi().showModalDialog(html, "Settings");
 }
 

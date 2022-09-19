@@ -3,6 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <base target="_top" />
+    <link
+      href="https://unpkg.com/@primer/css@^20.2.4/dist/primer.css"
+      rel="stylesheet"
+    />
     <script>
       // Prevent forms from submitting.
       // ref. https://developers.google.com/apps-script/guides/html/communication#forms
@@ -28,37 +32,70 @@
     </script>
   </head>
   <body>
+    <div id="success" class="flash flash-success" style="display: none">
+      <!-- <%= octicon "check" %> -->
+      <svg
+        class="octicon"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 16 16"
+        width="16"
+        height="16"
+      >
+        <path
+          fill-rule="evenodd"
+          d="M13.78 4.22a.75.75 0 010 1.06l-7.25 7.25a.75.75 0 01-1.06 0L2.22 9.28a.75.75 0 011.06-1.06L6 10.94l6.72-6.72a.75.75 0 011.06 0z"
+        ></path>
+      </svg>
+      Saved successfully
+    </div>
     <div id="form">
       <form id="form" onsubmit="handleSubmit(this)">
-        <label for="slackWebhookUrl">Slack Webhook URL</label>
-        <input
-          type="text"
-          id="slackWebhookUrl"
-          name="slackWebhookUrl"
-          value="<?= settings.slackWebhookUrl ?>"
-        />
-        <br /><br />
-        <label for="slackBotToken">Slack Bot Token</label>
-        <input
-          type="text"
-          id="slackBotToken"
-          name="slackBotToken"
-          value="<?= settings.slackBotToken ?>"
-        />
-        <br /><br />
-        <label for="slackChannelName">Slack Channel Name</label>
-        <input
-          type="text"
-          id="slackChannelName"
-          name="slackChannelName"
-          value="<?= settings.slackChannelName ?>"
-        />
-        <br /><br />
-        <input type="submit" value="Save" />
+        <div class="form-group">
+          <div class="form-group-header">
+            <label for="slackWebhookUrl">Slack Webhook URL</label>
+          </div>
+          <div class="form-group-body">
+            <input
+              class="form-control input-block"
+              type="text"
+              id="slackWebhookUrl"
+              name="slackWebhookUrl"
+              value="<?= settings.slackWebhookUrl ?>"
+            />
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="form-group-header">
+            <label for="slackBotToken">Slack Bot Token</label>
+          </div>
+          <div class="form-group-body">
+            <input
+              class="form-control input-block"
+              type="text"
+              id="slackBotToken"
+              name="slackBotToken"
+              value="<?= settings.slackBotToken ?>"
+            />
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="form-group-header">
+            <label for="slackChannelName">Slack Channel Name</label>
+          </div>
+          <div class="form-group-body">
+            <input
+              class="form-control input-block"
+              type="text"
+              id="slackChannelName"
+              name="slackChannelName"
+              value="<?= settings.slackChannelName ?>"
+            />
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit">Save</button>
+        </div>
       </form>
-      <div id="success" style="display: none">
-        <p>Successfully saved.</p>
-      </div>
     </div>
   </body>
 </html>
