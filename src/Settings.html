@@ -31,13 +31,28 @@
     <div id="form">
       <form id="form" onsubmit="handleSubmit(this)">
         <label for="slackWebhookUrl">Slack Webhook URL</label>
-        <input type="text" id="slackWebhookUrl" name="slackWebhookUrl" />
+        <input
+          type="text"
+          id="slackWebhookUrl"
+          name="slackWebhookUrl"
+          value="<?= settings.slackWebhookUrl ?>"
+        />
         <br /><br />
         <label for="slackBotToken">Slack Bot Token</label>
-        <input type="text" id="slackBotToken" name="slackBotToken" />
+        <input
+          type="text"
+          id="slackBotToken"
+          name="slackBotToken"
+          value="<?= settings.slackBotToken ?>"
+        />
         <br /><br />
         <label for="slackChannelName">Slack Channel Name</label>
-        <input type="text" id="slackChannelName" name="slackChannelName" />
+        <input
+          type="text"
+          id="slackChannelName"
+          name="slackChannelName"
+          value="<?= settings.slackChannelName ?>"
+        />
         <br /><br />
         <input type="submit" value="Save" />
       </form>

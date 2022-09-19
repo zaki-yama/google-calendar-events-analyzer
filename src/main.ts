@@ -40,9 +40,9 @@ function onOpen() {
 }
 
 function openSettings() {
-  var html = HtmlService.createHtmlOutputFromFile("Settings")
-    .setWidth(400)
-    .setHeight(300);
+  const template = HtmlService.createTemplateFromFile("Settings");
+  template.settings = getSettings();
+  const html = template.evaluate().setWidth(400).setHeight(300);
   SpreadsheetApp.getUi().showModalDialog(html, "Settings");
 }
 
@@ -53,6 +53,11 @@ function saveSettings(form: HTMLFormElement) {
     slackChannelName: form.slackChannelName,
     slackBotToken: form.slackBotToken,
   });
+}
+
+function getSettings() {
+  const userProperties = PropertiesService.getUserProperties();
+  return userProperties.getProperties();
 }
 
 /**
