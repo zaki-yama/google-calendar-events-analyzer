@@ -1,10 +1,5 @@
-/* constants */
-const SLACK_WEBHOOK_URL = "<YOUR WEBHOOK URL>";
-
 // Needed to post the chart to slack
 const SLACK_FILE_UPLOAD_URL = "https://slack.com/api/files.upload";
-const SLACK_BOT_TOKEN = "<YOUR BOT TOKEN>";
-const SLACK_CHANNEL_NAME = "<YOUR SLACK CHANNEL NAME>";
 
 // ref. https://sakidesign.com/gapi-calendar/
 const EVENT_COLORS = [
@@ -29,6 +24,12 @@ type CalendarEvent = {
   endTime: GoogleAppsScript.Base.Date;
 };
 
+type Settings = {
+  slackWebhookUrl: string;
+  slackBotToken: string;
+  slackChannelName: string;
+};
+
 type Category = string;
 type ColorId = string;
 type Config = Map<ColorId, Category>;
@@ -49,14 +50,14 @@ function saveSettings(form: HTMLFormElement) {
   const userProperties = PropertiesService.getUserProperties();
   userProperties.setProperties({
     slackWebhookUrl: form.slackWebhookUrl,
-    slackChannelName: form.slackChannelName,
     slackBotToken: form.slackBotToken,
+    slackChannelName: form.slackChannelName,
   });
 }
 
-function getSettings() {
+function getSettings(): Settings {
   const userProperties = PropertiesService.getUserProperties();
-  return userProperties.getProperties();
+  return userProperties.getProperties() as Settings;
 }
 
 /**
@@ -242,7 +243,7 @@ function postSummaryToSlack(targetDate: Date, events: CalendarEvent[]) {
     contentType: "application/json",
     payload: JSON.stringify(message),
   } as const;
-  UrlFetchApp.fetch(SLACK_WEBHOOK_URL, options);
+  UrlFetchApp.fetch(getSettings().slackWebhookUrl, options);
 }
 
 function getSummary(targetDate: Date) {
@@ -295,11 +296,11 @@ function postChartToSlack() {
   const options = {
     method: "post",
     headers: {
-      Authorization: `Bearer ${SLACK_BOT_TOKEN}`,
+      Authorization: `Bearer ${getSettings().slackBotToken}`,
     },
     payload: {
       title: "Summary",
-      channels: SLACK_CHANNEL_NAME,
+      channels: getSettings().slackChannelName,
       file: chart.getAs("image/png"),
       fileType: "png",
     },
