@@ -134,32 +134,6 @@ function writeEventsToSpreadSheet(events: CalendarEvent[]) {
   range.setValues(values);
 }
 
-function writeToSpreadSheet(durationInHoursByCategory: Map<Category, number>) {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = ss.getSheetByName("data");
-  if (!sheet) {
-    throw new Error("data sheet not found");
-  }
-  const range = sheet.getDataRange();
-  console.log(range.getNumRows(), range.getNumColumns());
-  const row = sheet.getRange(
-    range.getNumRows() + 1,
-    1,
-    1,
-    range.getNumColumns()
-  );
-  const categories: Category[] = sheet
-    .getRange(1, 1, 1, range.getNumColumns())
-    .getValues()[0];
-  const values = categories.map((category) =>
-    durationInHoursByCategory.get(category)
-  );
-  // @ts-ignore
-  values[0] = new Date();
-  console.log("values", values);
-  row.setValues([values]);
-}
-
 function createCategoriesSheet() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sheet =
