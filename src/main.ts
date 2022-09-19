@@ -23,7 +23,7 @@ const CATEGORIES_SHEET_NAME = "categories";
 
 function onOpen() {
   const ui = SpreadsheetApp.getUi();
-  ui.createMenu("Menu").addItem("Settings", "openSettings").addToUi();
+  ui.createMenu("📆 Menu").addItem("Settings", "openSettings").addToUi();
 }
 
 function openSettings() {
