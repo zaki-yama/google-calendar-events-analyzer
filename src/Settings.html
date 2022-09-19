@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <base target="_top" />
+    <script>
+      // Prevent forms from submitting.
+      // ref. https://developers.google.com/apps-script/guides/html/communication#forms
+      function preventFormSubmit() {
+        const forms = document.querySelectorAll("form");
+        forms.forEach((form) => {
+          form.addEventListener("submit", (event) => {
+            event.preventDefault();
+          });
+        });
+      }
+      window.addEventListener("load", preventFormSubmit);
+
+      function onSuccess() {
+        document.getElementById("success").style.display = "block";
+      }
+
+      function handleSubmit(formObject) {
+        google.script.run
+          .withSuccessHandler(onSuccess)
+          .saveSettings(formObject);
+      }
+    </script>
+  </head>
+  <body>
+    <div id="form">
+      <form id="form" onsubmit="handleSubmit(this)">
+        <label for="slackWebhookUrl">Slack Webhook URL</label>
+        <input type="text" id="slackWebhookUrl" name="slackWebhookUrl" />
+        <br /><br />
+        <label for="slackBotToken">Slack Bot Token</label>
+        <input type="text" id="slackBotToken" name="slackBotToken" />
+        <br /><br />
+        <label for="slackChannelName">Slack Channel Name</label>
+        <input type="text" id="slackChannelName" name="slackChannelName" />
+        <br /><br />
+        <input type="submit" value="Save" />
+      </form>
+      <div id="success" style="display: none">
+        <p>Successfully saved.</p>
+      </div>
+    </div>
+  </body>
+</html>

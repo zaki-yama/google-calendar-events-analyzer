@@ -29,9 +29,31 @@ type Event = {
   startTime: GoogleAppsScript.Base.Date;
   endTime: GoogleAppsScript.Base.Date;
 };
+
 type Category = string;
 type ColorId = string;
 type Config = Map<ColorId, Category>;
+
+function onOpen() {
+  const ui = SpreadsheetApp.getUi();
+  ui.createMenu("Menu").addItem("Settings", "openSettings").addToUi();
+}
+
+function openSettings() {
+  var html = HtmlService.createHtmlOutputFromFile("Settings")
+    .setWidth(400)
+    .setHeight(300);
+  SpreadsheetApp.getUi().showModalDialog(html, "Settings");
+}
+
+function saveSettings(form: HTMLFormElement) {
+  const userProperties = PropertiesService.getUserProperties();
+  userProperties.setProperties({
+    slackWebhookUrl: form.slackWebhookUrl,
+    slackChannelName: form.slackChannelName,
+    slackBotToken: form.slackBotToken,
+  });
+}
 
 /**
  * main function. Trigger this daily.
