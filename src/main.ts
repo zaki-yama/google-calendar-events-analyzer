@@ -15,6 +15,9 @@ const EVENT_COLORS = [
   "#0B8043", // バジル Basil
   "#D50000", // トマト Tomato
 ];
+const EVENTS_SHEET_NAME = "events";
+const SUMMARY_SHEET_NAME = "sheet";
+const CATEGORIES_SHEET_NAME = "categories";
 
 type CalendarEvent = {
   title: string;
@@ -32,7 +35,7 @@ type Settings = {
 
 type Category = string;
 type ColorId = string;
-type Config = Map<ColorId, Category>;
+type CategoryMap = Map<ColorId, Category>;
 
 function onOpen() {
   const ui = SpreadsheetApp.getUi();
@@ -71,8 +74,8 @@ function runDaily() {
     return;
   }
 
-  const config = getConfig();
-  const events = convertGoogleEvents(googleEvents, config);
+  const categories = getCategories();
+  const events = convertGoogleEvents(googleEvents, categories);
   writeEventsToSpreadSheet(events);
 
   postSummaryToSlack(targetDate, events);
@@ -96,14 +99,14 @@ function fetchGoogleEvents(
 
 function convertGoogleEvents(
   googleEvents: GoogleAppsScript.Calendar.CalendarEvent[],
-  config: Config
+  categories: CategoryMap
 ): CalendarEvent[] {
   return googleEvents.map((googleEvent) => {
     const colorId = googleEvent.getColor() || "default";
     return {
       title: googleEvent.getTitle(),
       colorId: colorId,
-      category: config.get(colorId),
+      category: categories.get(colorId),
       startTime: googleEvent.getStartTime(),
       endTime: googleEvent.getEndTime(),
     };
@@ -112,9 +115,9 @@ function convertGoogleEvents(
 
 function writeEventsToSpreadSheet(events: CalendarEvent[]) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = ss.getSheetByName("raw data");
+  const sheet = ss.getSheetByName(EVENTS_SHEET_NAME);
   if (!sheet) {
-    throw new Error("data sheet not found");
+    throw new Error(`sheet [${EVENTS_SHEET_NAME}] not found`);
   }
 
   const lastRow = sheet.getLastRow();
@@ -157,9 +160,11 @@ function writeToSpreadSheet(durationInHoursByCategory: Map<Category, number>) {
   row.setValues([values]);
 }
 
-function createConfigSheet() {
+function createCategoriesSheet() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = ss.getSheetByName("config") || ss.insertSheet("config");
+  const sheet =
+    ss.getSheetByName(CATEGORIES_SHEET_NAME) ||
+    ss.insertSheet(CATEGORIES_SHEET_NAME);
 
   const headerCells = sheet.getRange(1, 1, 1, 2);
   headerCells.setValues([["Color", "Category"]]);
@@ -175,9 +180,9 @@ function createConfigSheet() {
   ]);
 }
 
-function getConfig(): Config {
+function getCategories(): CategoryMap {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = ss.getSheetByName("config");
+  const sheet = ss.getSheetByName(CATEGORIES_SHEET_NAME);
 
   const cells = sheet?.getRange(
     2,
@@ -248,7 +253,7 @@ function postSummaryToSlack(targetDate: Date, events: CalendarEvent[]) {
 
 function getSummary(targetDate: Date) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = ss.getSheetByName("summary");
+  const sheet = ss.getSheetByName(SUMMARY_SHEET_NAME);
 
   const dateCol = sheet.getRange(1, 1, sheet.getLastRow(), 1);
   const targetRowIndex = dateCol
@@ -273,7 +278,7 @@ function getSummary(targetDate: Date) {
 
 function updateChartRange(): void {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = ss.getSheetByName("summary");
+  const sheet = ss.getSheetByName(SUMMARY_SHEET_NAME);
   const chart = sheet.getCharts()[0];
   sheet.updateChart(
     chart
@@ -290,7 +295,7 @@ function updateChartRange(): void {
 
 function postChartToSlack() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = ss.getSheetByName("summary");
+  const sheet = ss.getSheetByName(SUMMARY_SHEET_NAME);
   const chart = sheet.getCharts()[0];
 
   const options = {
