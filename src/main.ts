@@ -21,8 +21,7 @@ const EVENT_COLORS = [
   "#D50000", // トマト Tomato
 ];
 
-/* types */
-type Event = {
+type CalendarEvent = {
   title: string;
   colorId: ColorId;
   category: Category | undefined;
@@ -97,7 +96,7 @@ function fetchGoogleEvents(
 function convertGoogleEvents(
   googleEvents: GoogleAppsScript.Calendar.CalendarEvent[],
   config: Config
-): Event[] {
+): CalendarEvent[] {
   return googleEvents.map((googleEvent) => {
     const colorId = googleEvent.getColor() || "default";
     return {
@@ -110,7 +109,7 @@ function convertGoogleEvents(
   });
 }
 
-function writeEventsToSpreadSheet(events: Event[]) {
+function writeEventsToSpreadSheet(events: CalendarEvent[]) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = ss.getSheetByName("raw data");
   if (!sheet) {
@@ -202,7 +201,7 @@ function toHHmmString(date) {
 /**
  * Post the summary (duration by category) to Slack
  */
-function postSummaryToSlack(targetDate: Date, events: Event[]) {
+function postSummaryToSlack(targetDate: Date, events: CalendarEvent[]) {
   const summary = getSummary(targetDate);
   const summaryText = Object.keys(summary)
     .flatMap((category) =>
