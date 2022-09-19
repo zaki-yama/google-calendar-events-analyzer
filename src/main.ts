@@ -251,6 +251,7 @@ function updateChartRange(): void {
   sheet.updateChart(
     chart
       .modify()
+      .clearRanges()
       // FIXME: the number of columns can be changed, so I should avoid using `A` and `F` notation
       .addRange(sheet.getRange("A2:F2")) // Always include headers
       .addRange(
