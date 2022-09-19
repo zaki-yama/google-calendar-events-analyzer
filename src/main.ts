@@ -1,3 +1,5 @@
+import type { CategoryMap, CalendarEvent, Settings } from "./types";
+
 // Needed to post the chart to slack
 const SLACK_FILE_UPLOAD_URL = "https://slack.com/api/files.upload";
 
@@ -18,24 +20,6 @@ const EVENT_COLORS = [
 const EVENTS_SHEET_NAME = "events";
 const SUMMARY_SHEET_NAME = "sheet";
 const CATEGORIES_SHEET_NAME = "categories";
-
-type CalendarEvent = {
-  title: string;
-  colorId: ColorId;
-  category: Category | undefined;
-  startTime: GoogleAppsScript.Base.Date;
-  endTime: GoogleAppsScript.Base.Date;
-};
-
-type Settings = {
-  slackWebhookUrl: string;
-  slackBotToken: string;
-  slackChannelName: string;
-};
-
-type Category = string;
-type ColorId = string;
-type CategoryMap = Map<ColorId, Category>;
 
 function onOpen() {
   const ui = SpreadsheetApp.getUi();
