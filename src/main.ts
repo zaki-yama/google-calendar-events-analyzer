@@ -18,7 +18,7 @@ const EVENT_COLORS = [
   "#D50000", // トマト Tomato
 ];
 const EVENTS_SHEET_NAME = "events";
-const SUMMARY_SHEET_NAME = "sheet";
+const SUMMARY_SHEET_NAME = "summary";
 const CATEGORIES_SHEET_NAME = "categories";
 
 function onOpen() {
