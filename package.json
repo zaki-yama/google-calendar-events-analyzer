@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
+    "open": "clasp open",
     "push": "clasp push"
   },
   "repository": {
