@@ -21,6 +21,8 @@ const EVENTS_SHEET_NAME = "events";
 const SUMMARY_SHEET_NAME = "summary";
 const CATEGORIES_SHEET_NAME = "categories";
 
+const CHART_RANGE_DAYS = 5;
+
 function onOpen() {
   const ui = SpreadsheetApp.getUi();
   ui.createMenu("📆 Menu").addItem("Settings", "openSettings").addToUi();
@@ -237,15 +239,16 @@ function getSummary(targetDate: Date) {
 function updateChartRange(): void {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = ss.getSheetByName(SUMMARY_SHEET_NAME);
+  const lastColumn = sheet.getLastColumn();
+  console.log("lastColumn", lastColumn);
   const chart = sheet.getCharts()[0];
   sheet.updateChart(
     chart
       .modify()
       .clearRanges()
-      // FIXME: the number of columns can be changed, so I should avoid using `A` and `F` notation
-      .addRange(sheet.getRange("A2:F2")) // Always include headers
+      .addRange(sheet.getRange(2, 1, 1, lastColumn)) // Always include header row
       .addRange(
-        sheet.getRange(`A${sheet.getLastRow() + 1}:F${sheet.getLastRow() + 5}`)
+        sheet.getRange(sheet.getLastRow() + 1, 1, CHART_RANGE_DAYS, lastColumn)
       )
       .build()
   );
