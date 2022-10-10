@@ -68,6 +68,15 @@ function runDaily() {
   postDailySummaryToSlack(targetDate, events);
 }
 
+/**
+ * Post weekly chart to Slack.
+ * Trigger this weekly.
+ */
+function runWeekly() {
+  postChartToSlack();
+  updateChartRange();
+}
+
 function fetchGoogleEvents(
   targetDate: Date
 ): GoogleAppsScript.Calendar.CalendarEvent[] {
