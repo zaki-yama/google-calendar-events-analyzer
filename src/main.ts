@@ -50,7 +50,8 @@ function getSettings(): Settings {
 }
 
 /**
- * main function. Trigger this daily.
+ * Fetch google calendar's events, write them to Spreadsheet and post the summary to Slack.
+ * Trigger this daily.
  */
 function runDaily() {
   const targetDate = new Date();
@@ -62,9 +63,9 @@ function runDaily() {
 
   const categories = getCategories();
   const events = convertGoogleEvents(googleEvents, categories);
-  writeEventsToSpreadSheet(events);
+  writeEventsToSpreadsheet(events);
 
-  postSummaryToSlack(targetDate, events);
+  postDailySummaryToSlack(targetDate, events);
 }
 
 function fetchGoogleEvents(
@@ -99,7 +100,7 @@ function convertGoogleEvents(
   });
 }
 
-function writeEventsToSpreadSheet(events: CalendarEvent[]) {
+function writeEventsToSpreadsheet(events: CalendarEvent[]) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = ss.getSheetByName(EVENTS_SHEET_NAME);
   if (!sheet) {
@@ -170,8 +171,8 @@ function toHHmmString(date) {
 /**
  * Post the summary (duration by category) to Slack
  */
-function postSummaryToSlack(targetDate: Date, events: CalendarEvent[]) {
-  const summary = getSummary(targetDate);
+function postDailySummaryToSlack(targetDate: Date, events: CalendarEvent[]) {
+  const summary = getDailySummary(targetDate);
   const summaryText = Object.keys(summary)
     .flatMap((category) =>
       summary[category] ? `${category}: ${toHHmmString(summary[category])}` : []
@@ -214,7 +215,7 @@ function postSummaryToSlack(targetDate: Date, events: CalendarEvent[]) {
   UrlFetchApp.fetch(getSettings().slackWebhookUrl, options);
 }
 
-function getSummary(targetDate: Date) {
+function getDailySummary(targetDate: Date) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = ss.getSheetByName(SUMMARY_SHEET_NAME);
 
