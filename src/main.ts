@@ -120,6 +120,9 @@ function writeEventsToSpreadSheet(events: CalendarEvent[]) {
   range.setValues(values);
 }
 
+/**
+ * @deprecated
+ */
 function createCategoriesSheet() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sheet =
