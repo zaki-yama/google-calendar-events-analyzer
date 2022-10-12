@@ -22,14 +22,14 @@ Google カレンダーの予定を色別に集計し、Slack に投稿する Bot
 - すでにインストール済みになっていたら再インストールする
 - 投稿先のチャンネルに Slack アプリを追加する
 
-![](images/slack-add-app.png)
+  ![](images/slack-add-app.png)
 
 ### 3. スプレッドシートの作成
 
 - https://docs.google.com/spreadsheets/d/1uf5XqUqcsIfwMdeJYZg6rJ3psmPPnJhMKf9OouLl55c/edit からスプレッドシートをコピーする
 - スプレッドシートの `📆 Menu > Settings` を開く
 
-![](images/spreadsheet-menu.png)
+  ![](images/spreadsheet-menu.png)
 
 - 認証が求められるので、許可する
 
@@ -40,7 +40,7 @@ Google カレンダーの予定を色別に集計し、Slack に投稿する Bot
 
 - 再度 `📆 Menu > Settings` を開き、Slack アプリを作成したときの [1] Webhook URL、 [2] Bot User OAuth Token、 [3] 投稿先の Slack チャンネル名を入力する
 
-![](images/settings.png)
+  ![](images/settings.png)
 
 - 以下 2 つの時間ベースのトリガーを設定する
 
