@@ -42,6 +42,10 @@ Google カレンダーの予定を色別に集計し、Slack に投稿する Bot
 
   ![](images/settings.png)
 
+- `categories` シートに、集計したい色ごとにカテゴリ名を設定する
+
+  ![](images/categories.png)
+
 - 以下 2 つの時間ベースのトリガーを設定する
 
 | 関数名      | やっていること                                     | トリガーの頻度 |
