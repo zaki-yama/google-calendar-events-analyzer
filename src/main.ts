@@ -254,14 +254,22 @@ function updateChartRange(): void {
   const sheet = ss.getSheetByName(SUMMARY_SHEET_NAME);
   const lastColumn = sheet.getLastColumn();
   console.log("lastColumn", lastColumn);
+
+  const pivotTables = sheet.getPivotTables();
+  const pivotTable = pivotTables[0];
+  const pivotGroups = pivotTable.getColumnGroups();
+  const totalsAreShown = pivotGroups[0].totalsAreShown();
+
+  const numColumns = totalsAreShown ? lastColumn - 1 : lastColumn;
+
   const chart = sheet.getCharts()[0];
   sheet.updateChart(
     chart
       .modify()
       .clearRanges()
-      .addRange(sheet.getRange(2, 1, 1, lastColumn)) // Always include header row
+      .addRange(sheet.getRange(2, 1, 1, numColumns)) // Always include header row
       .addRange(
-        sheet.getRange(sheet.getLastRow() + 1, 1, CHART_RANGE_DAYS, lastColumn)
+        sheet.getRange(sheet.getLastRow() + 1, 1, CHART_RANGE_DAYS, numColumns)
       )
       .build()
   );
