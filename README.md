@@ -2,6 +2,8 @@
 
 Google カレンダーの予定を色別に集計し、Slack に投稿する Bot です。
 
+![](images/overview.png)
+
 ## インストール方法
 
 ### 1. Slack アプリを作成する
