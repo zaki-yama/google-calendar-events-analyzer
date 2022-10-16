@@ -204,7 +204,7 @@ function postDailySummaryToSlack(targetDate: Date, events: CalendarEvent[]) {
         type: "section",
         text: {
           type: "mrkdwn",
-          text: `:muscle: *今日の作業*\n${summaryText}`,
+          text: `*Today's summary*\n${summaryText}`,
         },
       },
       {
