@@ -35,7 +35,7 @@ Google カレンダーの予定を色別に集計し、Slack に投稿する Bot
 
 - 認証が求められるので、許可する
 
-  - 「このアプリは Google で確認されていません」と表示されるが、 `詳細 -> Google Calendar Events Analytics（安全ではないページ）に移動` を選択
+  - 「このアプリは Google で確認されていません」と表示されるが、 `詳細 -> Google Calendar Events Analyzer（安全ではないページ）に移動` を選択
 
   ![](images/google-grant-auth-1.png)
   ![](images/google-grant-auth-2.png)
