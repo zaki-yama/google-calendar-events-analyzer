@@ -1,5 +1,7 @@
 # Google Calendar Events Analyzer
 
+[README in English](./README_en.md)
+
 Google カレンダーの予定を色別に集計し、Slack に投稿する Bot です。
 
 ![](images/ja/overview.png)
